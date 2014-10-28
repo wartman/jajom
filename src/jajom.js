@@ -63,8 +63,8 @@
       return jajom.Object.extend(obj);
     }
     return jajom.Object.extend(obj)
-      .methods(obj.prototype)
-      .statics(obj);
+      .methods(obj.prototype, jajom.Object.prototype)
+      .statics(obj, jajom.Object);
   };
 
   // jajom.Object

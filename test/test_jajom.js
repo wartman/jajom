@@ -53,7 +53,77 @@ describe('jajom', function () {
     expect(testThree.foo).to.equal('foo');
     expect(testThree.bar()).to.equal('foobarbin');
   });
+
+  it('can call sup on casted constructors', function () {
+    var Test = function (n) {
+      this.foo = n;
+    };
+    Test.prototype.bar = function () {
+      return this.foo + 'bar';
+    };
+    var TestTwo = jajom(Test);
+    var TestThree = TestTwo.extend(function (n) {
+      n += 'foo';
+      this.sup(n);
+    });
+    var test = new TestThree('foo');
+    expect(test.foo).to.equal('foofoo');
+    expect(test.bar()).to.equal('foofoobar');
+  });
+
+  it('properly assigns prototypes from casted objects', function () {
+    var called = 0;
+    var foo = 'foo';
+    var Test = function (n) {
+      this.foo = n;
+    };
+    Test.prototype.bar = function () {
+      called = 1;
+    };
+    var TestTwo = jajom(Test).methods({
+      bar: function () {
+        called = 2;
+      }
+    });
+    var TestThree = TestTwo.extend({
+      bar: function () {
+        called = 3;
+      }
+    });
+    var test = new Test('foo');
+    test.bar();
+    expect(called).to.equal(1);
+    expect(test.foo).to.equal('foo');
+    test = TestThree.create();
+    test.bar();
+    expect(called).to.equal(3);
+    expect(test.foo).to.be.an('undefined');
+    test = TestTwo.create();
+    test.bar();
+    expect(called).to.equal(2);
+    expect(test.foo).to.be.an('undefined');
+  });
   
+  it('overwrites methods and forces the new object to use jajom\'s', function () {
+    var Test = function (n) {
+      this.foo = n;
+    };
+    Test.extend = function (obj) {
+      this.prototype = obj;
+    };
+    Test.prototype.bar = function () {
+      return this.foo + 'bar';
+    };
+    var TestTwo = jajom(Test);
+    expect(TestTwo.extend).to.equal(jajom.Object.extend);
+    var TestThree = TestTwo.extend({
+      bar: function () {
+        return this.sup() + 'bin';
+      }
+    });
+    expect(TestThree.create('foo').bar()).to.equal('foobarbin');
+  });
+
   describe('#Object', function () {
 
     it('creates an instance of a class', function () {
