@@ -59,8 +59,12 @@
   // Pass any function or object to `jajom`, and it will
   // be transformed into a `jajom.Object`.
   var jajom = function (obj) {
-    if ('object' === typeof obj) return jajom.Object.extend(obj);
-    return jajom.Object.extend.call(obj, jajom.Object.prototype, jajom.Object);
+    if ('object' === typeof obj) {
+      return jajom.Object.extend(obj);
+    }
+    return jajom.Object.extend(obj)
+      .methods(obj.prototype)
+      .statics(obj);
   };
 
   // jajom.Object

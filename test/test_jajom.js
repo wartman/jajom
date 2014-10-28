@@ -40,10 +40,18 @@ describe('jajom', function () {
       return this.foo + 'bar';
     };
     var TestTwo = jajom(Test);
+    var TestThree = TestTwo.extend({
+      bar: function () {
+        return this.sup() + 'bin';
+      }
+    })
     expect(Test).to.not.equal(TestTwo);
     var test = TestTwo.create('foo');
+    var testThree = TestThree.create('foo');
     expect(test.foo).to.equal('foo');
     expect(test.bar()).to.equal('foobar');
+    expect(testThree.foo).to.equal('foo');
+    expect(testThree.bar()).to.equal('foobarbin');
   });
   
   describe('#Object', function () {
