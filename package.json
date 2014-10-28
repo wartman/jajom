@@ -1,7 +1,7 @@
 {
-  "name": "oopkit",
+  "name": "jajom",
   "version": "0.0.0",
-  "description": "OOP for javascript",
+  "description": "Just Another JavaScript OOP Module",
   "main": "index.js",
   "directories": {
     "test": "test"
