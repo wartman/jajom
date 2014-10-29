@@ -1,7 +1,7 @@
 var gulp = require('gulp')
-  , mocha = require('gulp-mocha')
-  , uglify = require('gulp-uglify')
-  , rename = require('gulp-rename')
+var mocha = require('gulp-mocha')
+var uglify = require('gulp-uglify')
+var rename = require('gulp-rename')
 
 gulp.task('test', function () {
   return gulp.src('./test/test_*.js', {read: false})

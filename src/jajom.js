@@ -1,4 +1,4 @@
-;(function (name, context, definition) {
+(function (name, context, definition) {
   if (typeof module != 'undefined' && module.exports) module.exports = definition()
   else if (typeof define == 'function' && define.amd) define(definition)
   else context[name] = definition()
@@ -19,7 +19,7 @@
       // Override the method
       method = function () {
         var prev = this.sup || jajom.Object.prototype.sup
-          , result
+        var result
         this.sup = parentMethod
         try {
           result = originalMethod.apply(this, arguments)
@@ -58,9 +58,7 @@
   // Pass any function or object to `jajom`, and it will
   // be transformed into a `jajom.Object`.
   function jajom(obj) {
-    if ('object' === typeof obj) {
-      return jajom.Object.extend(obj)
-    }
+    if ('object' === typeof obj) return jajom.Object.extend(obj)
     return jajom.Object.extend(obj)
       .methods(obj.prototype, jajom.Object.prototype)
       .statics(obj, jajom.Object)
@@ -76,19 +74,14 @@
   // Extend the base object and create a new class.
   jajom.Object.extend = function (props, staticProps) {
     var parent = this
-      , constructor
-      , Sub
-      , extended
+    var extended, constructor, Sub
 
     props = props || {}
     staticProps = staticProps || {}
 
     // If the first argument is a function, use it as
     // the constructor.
-    if ('function' === typeof props) {
-      constructor = props
-      props = {constructor: constructor}
-    }
+    if ('function' === typeof props) props = {constructor: props}
 
     jajom.__prototyping = true
     // Inherit prototype from the parent.
@@ -124,28 +117,24 @@
     return this
   }
 
-  // Mixin class methods.
-  jajom.Object.statics = function () {
+  // Mixin methods to a class ('statics') or an instance ('implement').
+  jajom.Object.statics = jajom.Object.prototype.implement = function () {
     for (var i = 0; i < arguments.length; i += 1) {
       mixin(this, arguments[i])
     }
     return this
   }
 
-  // Mixin methods to an instance of a jajom Object.
-  jajom.Object.prototype.implement = jajom.Object.statics
-
   // Default 'sup' function.
-  jajom.Object.sup = function () {
+  jajom.Object.sup = jajom.Object.prototype.sup = function () {
     throw new Error('No super method to call')
   }
-  jajom.Object.prototype.sup = jajom.Object.sup
 
   // An alternate way to create classes, handy if you need
   // to apply arguments to a new instance.
   jajom.Object.create = function () {
     var constructor = this.prototype.constructor
-      , args = arguments
+    var args = arguments
     function Surrogate() {
       return constructor.apply(this, args)
     }

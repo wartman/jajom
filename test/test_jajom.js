@@ -1,5 +1,5 @@
 var expect = require('chai').expect
-var jajom = require('../dist/jajom.min')
+var jajom = require('../src/jajom')
 
 describe('jajom', function () {
 
