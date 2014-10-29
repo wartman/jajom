@@ -1,182 +1,168 @@
-(function (name, context, definition) {
-  if (typeof module != 'undefined' && module.exports) module.exports = definition();
-  else if (typeof define == 'function' && define.amd) define(definition);
-  else context[name] = definition();
+;(function (name, context, definition) {
+  if (typeof module != 'undefined' && module.exports) module.exports = definition()
+  else if (typeof define == 'function' && define.amd) define(definition)
+  else context[name] = definition()
 })('jajom', this, function () {
-
-  var testSuper = /\bsup\b/;
 
   // Helpers
   // -------
 
   // Wrap a method for super calls.
-  var wrap = function (method, parentMethod) {
-    if (!parentMethod || 'function' !== typeof method) {
-      return method;
-    }
-    if ((!parentMethod.valueOf || parentMethod.valueOf() != method.valueOf())
-         && testSuper.test(method)) {
-      var originalMethod = method.valueOf();
-      // Override
+  var testSuper = /\bsup\b/
+  function wrap(method, parentMethod) {
+    if ((parentMethod && 'function' == typeof method)
+        // Check to make sure we don't create circular dependencies.
+        && (!parentMethod.valueOf || parentMethod.valueOf() != method.valueOf())
+        && testSuper.test(method)) {
+      // Ensure we're using the underlying function (if `method` was already wrapped)
+      var originalMethod = method.valueOf()
+      // Override the method
       method = function () {
-        var prev = this.sup || jajom.Object.prototype.sup;
-        this.sup = parentMethod;
+        var prev = this.sup || jajom.Object.prototype.sup
+          , result
+        this.sup = parentMethod
         try {
-          var result = originalMethod.apply(this, arguments);
+          result = originalMethod.apply(this, arguments)
         } finally {
-          this.sup = prev;
+          this.sup = prev
         }
-        return result;
-      };
+        return result
+      }
       // Make valueOf and toString return the unwrapped functions,
       // which is a lot more useful for debugging / etc.
       method.valueOf = function (type) {
-        return (type = 'object')? method : originalMethod;
-      };
-      method.toString = jajom.Object.toString;
-      method.__hasSup = true;
+        return (type = 'object')? method : originalMethod
+      }
+      method.toString = jajom.Object.toString
     }
-    return method;
-  };
+    return method
+  }
 
   // Mixin an object.
-  var mixin = function (obj, src, options) {
-    options = options || {};
+  function mixin(obj, src, options) {
+    options = options || {}
     for (var key in src) {
       if (src.hasOwnProperty(key)) {
         if (options.noWrap) {
-          obj[key] = src[key];
+          obj[key] = src[key]
         } else {
-          var parentProp = obj[key];
-          obj[key] = wrap(src[key], parentProp);
+          var parentProp = obj[key]
+          obj[key] = wrap(src[key], parentProp)
         }
       }
     }
-  };
+  }
 
   // jajom
   // -----  
   // Pass any function or object to `jajom`, and it will
   // be transformed into a `jajom.Object`.
-  var jajom = function (obj) {
+  function jajom(obj) {
     if ('object' === typeof obj) {
-      return jajom.Object.extend(obj);
+      return jajom.Object.extend(obj)
     }
     return jajom.Object.extend(obj)
       .methods(obj.prototype, jajom.Object.prototype)
-      .statics(obj, jajom.Object);
-  };
+      .statics(obj, jajom.Object)
+  }
 
   // jajom.Object
   // ------------
   // The core object all classes inherit from.
   jajom.Object = function () {
     // Dummy
-  };
+  }
 
   // Extend the base object and create a new class.
   jajom.Object.extend = function (props, staticProps) {
-    props = props || {};
-    staticProps = staticProps || {};
+    var parent = this
+      , constructor
+      , Sub
+      , extended
+
+    props = props || {}
+    staticProps = staticProps || {}
 
     // If the first argument is a function, use it as
-    // a constructor.
-    if (typeof props === 'function') {
-      var constructor = props;
-      props = { constructor: constructor };
+    // the constructor.
+    if ('function' === typeof props) {
+      constructor = props
+      props = {constructor: constructor}
     }
 
-    jajom.__prototyping = true;
+    jajom.__prototyping = true
     // Inherit prototype from the parent.
-    var parent = this;
-    var proto = new parent();
+    extended = new parent()
     // Mixin new prototype props.
-    mixin(proto, props);
-    delete jajom.__prototyping;
+    mixin(extended, props)
+    delete jajom.__prototyping
 
     // Create the constructor
-    var constructor = proto.constructor;
-    var SubClass = proto.constructor = function () {
-      if (!jajom.__prototyping) {
-        var result = constructor.apply(this, arguments);
-        if (result) return result;
-      }
-    };
+    constructor = extended.constructor
+    Sub = extended.constructor = function () {
+      if (!jajom.__prototyping) return constructor.apply(this, arguments)
+    }
 
     // Inherit static props from the parent (without wrapping functions).
-    mixin(SubClass, parent, {noWrap: true});
-
-    // Make .valueOf return the actual content of the 
-    // constructor, not our wrapped value.
-    SubClass.valueOf = function (type) {
-      return (type == "object") ? SubClass : constructor.valueOf();
-    };
-
-    // Set the parent reference
-    SubClass.ancestor = parent;
-
+    mixin(Sub, parent, {noWrap: true})
+    Sub.valueOf = function (type) {
+      return (type == "object") ? Sub : constructor
+    }
     // Add in static props
-    mixin(SubClass, staticProps);
-
+    mixin(Sub, staticProps)
     // Add proto props.
-    SubClass.prototype = proto;
-    SubClass.name = proto.name;
+    Sub.prototype = extended
 
-    return SubClass;
-  };
+    return Sub
+  }
 
-  // Mixin prototype methods.
+  // Mixin methods to the prototype.
   jajom.Object.methods = function () {
-    for (var i = 0; i <= arguments.length; i += 1) {
-      mixin(this.prototype, arguments[i]);
+    for (var i = 0; i < arguments.length; i += 1) {
+      mixin(this.prototype, arguments[i])
     }
-    return this;
-  };
+    return this
+  }
 
-  // Mixin static methods.
+  // Mixin class methods.
   jajom.Object.statics = function () {
-    for (var i = 0; i <= arguments.length; i += 1) {
-      mixin(this, arguments[i]);
+    for (var i = 0; i < arguments.length; i += 1) {
+      mixin(this, arguments[i])
     }
-    return this;
-  };
+    return this
+  }
 
-  jajom.Object.valueOf = function (){
-    return '[jajom.Object]';
-  };
-
-  jajom.Object.toString = function () {
-    return String(this.valueOf());
-  };
+  // Mixin methods to an instance of a jajom Object.
+  jajom.Object.prototype.implement = jajom.Object.statics
 
   // Default 'sup' function.
   jajom.Object.sup = function () {
-    throw new Error('Called `sup` outside a class method');
-  };
-  jajom.Object.prototype.sup = jajom.Object.sup;
-
-  // Mixin methods to an instance of an jajom Object.
-  jajom.Object.prototype.implement = function () {
-    for (var i = 0; i <= arguments.length; i += 1) {
-      mixin(this, arguments[i]);
-    }
-    return this;
-  };
+    throw new Error('No super method to call')
+  }
+  jajom.Object.prototype.sup = jajom.Object.sup
 
   // An alternate way to create classes, handy if you need
   // to apply arguments to a new instance.
   jajom.Object.create = function () {
-    var constructor = this;
-    var args = arguments;
-    var Surrogate = function() {
-      return constructor.apply(this, args);
+    var constructor = this.prototype.constructor
+      , args = arguments
+    function Surrogate() {
+      return constructor.apply(this, args)
     }
-    Surrogate.prototype = constructor.prototype;
-    return new Surrogate();
-  };
+    Surrogate.prototype = constructor.prototype
+    return new Surrogate()
+  }
+
+  jajom.Object.valueOf = function (){
+    return '[jajom.Object]'
+  }
+
+  jajom.Object.toString = function () {
+    return String(this.valueOf())
+  }
 
   // Ensure the correct constructor is set.
-  jajom.Object.prototype.constructor = jajom.Object;
+  jajom.Object.prototype.constructor = jajom.Object
 
   // jajom.Singleton
   // ---------------
@@ -185,18 +171,16 @@
   jajom.Singleton = jajom.Object.extend().statics({
 
     getInstance: function () {
-      if (!this._instance) {
-        this.setInstance();
-      }
-      return this._instance;
+      if (!this._instance) this.setInstance()
+      return this._instance
     },
 
     setInstance: function () {
-      this._instance = this.create.apply(this, arguments);
+      this._instance = this.create.apply(this, arguments)
     }
 
-  });
+  })
 
-  return jajom;
+  return jajom
 
 });

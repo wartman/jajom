@@ -1,18 +1,18 @@
-var gulp = require('gulp');
-var mocha = require('gulp-mocha');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
+var gulp = require('gulp')
+  , mocha = require('gulp-mocha')
+  , uglify = require('gulp-uglify')
+  , rename = require('gulp-rename')
 
 gulp.task('test', function () {
   return gulp.src('./test/test_*.js', {read: false})
-    .pipe(mocha({reporter: 'spec'}));
-});
+    .pipe(mocha({reporter: 'spec'}))
+})
 
 gulp.task('minify', ['test'], function () {
   return gulp.src('./src/jajom.js')
     .pipe(uglify())
     .pipe(rename('jajom.min.js'))
-    .pipe(gulp.dest('./dist'));
-});
+    .pipe(gulp.dest('./dist'))
+})
 
-gulp.task('default', ['test', 'minify']);
+gulp.task('default', ['test', 'minify'])

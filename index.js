@@ -1,3 +1,1 @@
-var jajom = require('./src/jajom');
-
-module.exports = jajom;
+module.exports = require('./src/jajom')
