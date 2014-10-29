@@ -8,12 +8,11 @@
   // -------
 
   // Wrap a method for super calls.
-  var testSuper = /\bsup\b/
   function wrap(method, parentMethod) {
     if ((parentMethod && 'function' == typeof method)
         // Check to make sure we don't create circular dependencies.
         && (!parentMethod.valueOf || parentMethod.valueOf() != method.valueOf())
-        && testSuper.test(method)) {
+        && /\bsup\b/.test(method)) {
       // Ensure we're using the underlying function (if `method` was already wrapped)
       var originalMethod = method.valueOf()
       // Override the method
@@ -33,22 +32,18 @@
       method.valueOf = function (type) {
         return (type = 'object')? method : originalMethod
       }
-      method.toString = jajom.Object.toString
+      method.toString = function () {
+        return String(originalMethod)
+      }
     }
     return method
   }
 
   // Mixin an object.
-  function mixin(obj, src, options) {
-    options = options || {}
+  function mixin(obj, src) {
     for (var key in src) {
       if (src.hasOwnProperty(key)) {
-        if (options.noWrap) {
-          obj[key] = src[key]
-        } else {
-          var parentProp = obj[key]
-          obj[key] = wrap(src[key], parentProp)
-        }
+        obj[key] = wrap(src[key], obj[key])
       }
     }
   }
@@ -97,9 +92,9 @@
     }
 
     // Inherit static props from the parent (without wrapping functions).
-    mixin(Sub, parent, {noWrap: true})
+    mixin(Sub, parent)
     Sub.valueOf = function (type) {
-      return (type == "object") ? Sub : constructor
+      return (type == 'object')? Sub : constructor.valueOf()
     }
     // Add in static props
     mixin(Sub, staticProps)
@@ -142,12 +137,12 @@
     return new Surrogate()
   }
 
-  jajom.Object.valueOf = function (){
+  jajom.Object.valueOf = function () {
     return '[jajom.Object]'
   }
 
   jajom.Object.toString = function () {
-    return String(this.valueOf())
+    return this.valueOf().toString()
   }
 
   // Ensure the correct constructor is set.

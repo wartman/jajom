@@ -57,6 +57,28 @@ describe('jajom', function () {
     expect(testThree.bar()).to.equal('foobarbin')
   })
 
+  it('does not exceed max-call-stack when calling toString on casted constructor', function () {
+    var Test = function (n) {
+      this.foo = n
+    }
+    Test.prototype.bar = function () {
+      return this.foo + 'bar'
+    }
+    var TestTwo = jajom(Test)
+    var TestThree = TestTwo.extend({
+      constructor: function (n) {
+        this.sup(n)
+      },
+      bar: function () {
+        return this.sup() + 'bin'
+      }
+    })
+    TestTwo.toString()
+    TestThree.toString()
+    // If all is well, then no errors will have been thrown.
+    expect(true).to.be.true
+  })
+
   it('can call sup on casted constructors', function () {
     var Test = function (n) {
       this.foo = n
@@ -132,6 +154,31 @@ describe('jajom', function () {
     it('creates an instance of a class', function () {
       var base = new Base(5)
       expect(base.n).to.equal(5)
+    })
+
+    it('does not exceed max-call-stack when calling toString on constructor', function () {
+      var Test = jajom.Object.extend(function (n) {
+        this.foo = n
+      }).methods({
+        bar: function () {
+          return this.foo + 'bar'
+        }
+      })
+      var TestTwo = Test.extend(function (n) {
+        this.sup(n)
+      })
+      var TestThree = TestTwo.extend({
+        constructor: function (n) {
+          this.sup(n)
+        },
+        bar: function () {
+          return this.sup() + 'bin'
+        }
+      })
+      TestTwo.toString()
+      TestThree.toString()
+      // If all is well, then no errors will have been thrown.
+      expect(true).to.be.true
     })
 
     describe('#extend', function () {
