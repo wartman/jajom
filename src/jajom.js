@@ -69,10 +69,10 @@
 
   // Add helper functions for mixins on the class or
   // on the class prototype.
-  jajom.Object.staticMethod = method
-  jajom.Object.prototype.method = method
   jajom.Object.statics = extend
+  jajom.Object.staticMethod = method
   jajom.Object.prototype.implement = extend
+  jajom.Object.prototype.method = method
 
   // An alternate way to create classes, handy if you need
   // to apply arguments to a new instance.
@@ -86,12 +86,8 @@
     return new Class()
   }
 
-  jajom.Object.valueOf = function () {
-    return '[jajom.Object]'
-  }
-
   jajom.Object.toString = function () {
-    return this.valueOf().toString()
+    return String(this.valueOf())
   }
 
   // Ensure the correct constructor is set.

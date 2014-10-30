@@ -57,28 +57,6 @@ describe('jajom', function () {
     expect(testThree.bar()).to.equal('foobarbin')
   })
 
-  it('does not exceed max-call-stack when calling toString on casted constructor', function () {
-    var Test = function (n) {
-      this.foo = n
-    }
-    Test.prototype.bar = function () {
-      return this.foo + 'bar'
-    }
-    var TestTwo = jajom(Test)
-    var TestThree = TestTwo.extend({
-      constructor: function (n) {
-        this.sup(n)
-      },
-      bar: function () {
-        return this.sup() + 'bin'
-      }
-    })
-    TestTwo.toString()
-    TestThree.toString()
-    // If all is well, then no errors will have been thrown.
-    expect(true).to.be.true
-  })
-
   it('can call sup on casted constructors', function () {
     var Test = function (n) {
       this.foo = n
@@ -154,31 +132,6 @@ describe('jajom', function () {
     it('creates an instance of a class', function () {
       var base = new Base(5)
       expect(base.n).to.equal(5)
-    })
-
-    it('does not exceed max-call-stack when calling toString on constructor', function () {
-      var Test = jajom.Object.extend(function (n) {
-        this.foo = n
-      }).methods({
-        bar: function () {
-          return this.foo + 'bar'
-        }
-      })
-      var TestTwo = Test.extend(function (n) {
-        this.sup(n)
-      })
-      var TestThree = TestTwo.extend({
-        constructor: function (n) {
-          this.sup(n)
-        },
-        bar: function () {
-          return this.sup() + 'bin'
-        }
-      })  
-      TestTwo.toString()
-      TestThree.toString()
-      // If all is well, then no errors will have been thrown.
-      expect(true).to.be.true
     })
 
     describe('#extend', function () {
@@ -626,19 +579,89 @@ describe('jajom', function () {
         expect(count).to.equal(1)
       })
 
-    }),
-
-    describe('instances', function () {
-
-      it('should be an instance of the parent classes', function () {
+      it('should create instances of the parent classes', function () {
         var Sub = Base.extend()
-        var a = new Base()
-        var b = new Sub()
+        var SubTwo = Sub.extend()
+        var a = new Base() // testing both methods
+        var b = Sub.create()
+        var c = SubTwo.create()
         expect(a).to.be.an.instanceOf(Base)
         expect(b).to.be.an.instanceOf(Sub)
+        expect(c).to.be.an.instanceOf(SubTwo)
       })
 
     })
+
+    describe('#toString', function () {
+
+      it('does not exceed max-call-stack when calling toString on casted constructor', function () {
+        var Test = function (n) {
+          this.foo = n
+        }
+        Test.prototype.bar = function () {
+          return this.foo + 'bar'
+        }
+        var TestTwo = jajom(Test)
+        var TestThree = TestTwo.extend({
+          constructor: function (n) {
+            this.sup(n)
+            this.hello = "hello world"
+          },
+          bar: function () {
+            return this.sup() + 'bin'
+          }
+        })
+        TestTwo.toString()
+        TestThree.toString()
+        // If all is well, then no errors will have been thrown.
+        expect(true).to.be.true
+      })
+
+      it('does not exceed max-call-stack when calling toString on constructor', function () {
+        var Test = jajom.Object.extend(function (n) {
+          this.foo = n
+        }).methods({
+          bar: function () {
+            return this.foo + 'bar'
+          }
+        })
+        var TestTwo = Test.extend(function (n) {
+          this.sup(n)
+        })
+        var TestThree = TestTwo.extend({
+          constructor: function (n) {
+            this.sup(n)
+          },
+          bar: function () {
+            return this.sup() + 'bin'
+          }
+        })  
+        TestTwo.toString()
+        TestThree.toString()
+        // If all is well, then no errors will have been thrown.
+        expect(true).to.be.true
+      })
+
+      it('uses the wrapped constructor', function () {
+        var testConstructor = function () {
+          this.hello = 'hello world'
+        }
+        var extendedConstructor = function () {
+          this.sup()
+          this.hello = this.hello
+        }
+        var Test = jajom.Object.extend({
+          constructor: testConstructor
+        })
+        var TestTwo = Test.extend()
+        var TestThree = TestTwo.extend(extendedConstructor)
+        expect(Test.toString()).to.equal(testConstructor.toString())
+        expect(TestTwo.toString()).to.equal(testConstructor.toString())
+        expect(TestThree.toString()).to.equal(extendedConstructor.toString())
+      })
+
+    })
+
   })
 
   describe('Singleton', function () {
