@@ -60,7 +60,8 @@
     return this
   }
 
-  // Add a single method.
+  // Add a single method. Works like a replacement for 'prototype'
+  // with the additional benefit of allowing for 'sup'
   jajom.Object.method = function () {
     method.apply(this.prototype, arguments)
     return this

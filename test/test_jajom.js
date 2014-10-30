@@ -499,13 +499,54 @@ describe('jajom', function () {
     describe('#methods', function () {
 
       it('should define methods', function () {
-        Base.methods({
+        var Test = Base.extend().methods({
           get: function () {
             return this.n
           }
         })
-        var test = new Base(5)
+        var test = new Test(5)
         expect(test.get()).to.equal(5)
+      })
+
+      it('assigns super calls to methods', function () {
+        var Test = Base.extend().methods({
+          get: function () {
+            return this.n
+          }
+        })
+        var TestTwo = Test.extend().methods({
+          get: function () {
+            return this.sup() + 1
+          }
+        })
+        var test = new TestTwo(5)
+        expect(test.get()).to.equal(6)
+      })
+
+    })
+
+    describe('#method', function () {
+
+      it('assigns a method to the prototype', function () {
+        var Test = jajom.Object.extend()
+        Test.method('foo', function () {
+          return 'foo'
+        })
+        var test = new Test()
+        expect(test.foo()).to.equal('foo')
+      })
+
+      it('allows for super calls', function () {
+        var Test = jajom.Object.extend()
+        Test.method('foo', function () {
+          return 'foo'
+        })
+        var TestTwo = Test.extend()
+        TestTwo.method('foo', function () {
+          return this.sup() + 'bar'
+        })
+        var test = new TestTwo()
+        expect(test.foo()).to.equal('foobar')
       })
 
     })
