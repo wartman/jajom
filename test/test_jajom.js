@@ -174,7 +174,7 @@ describe('jajom', function () {
         bar: function () {
           return this.sup() + 'bin'
         }
-      })
+      })  
       TestTwo.toString()
       TestThree.toString()
       // If all is well, then no errors will have been thrown.
