@@ -54,15 +54,15 @@
     return Class
   }
 
-  // Mixin methods to the prototype.
+  // Add methods to the prototype.
   jajom.Object.methods = function () {
     extend.apply(this.prototype, arguments)
     return this
   }
 
-  // Add a single method. Works like a replacement for 'prototype'
-  // with the additional benefit of allowing for 'sup'
-  jajom.Object.method = function () {
+  // Add a single method to this class's prototype. Will wrap the class
+  // for super calls if needed (the reason you'd use this over `Class.prototype.foo = whatever`).
+  jajom.Object.addMethod = function () {
     method.apply(this.prototype, arguments)
     return this
   }
@@ -70,9 +70,9 @@
   // Add helper functions for mixins on the class or
   // on the class prototype.
   jajom.Object.statics = extend
-  jajom.Object.staticMethod = method
+  jajom.Object.addStaticMethod = method
   jajom.Object.prototype.implement = extend
-  jajom.Object.prototype.method = method
+  jajom.Object.prototype.addMethod = method
 
   // An alternate way to create classes, handy if you need
   // to apply arguments to a new instance.
@@ -93,23 +93,7 @@
   // Ensure the correct constructor is set.
   jajom.Object.prototype.constructor = jajom.Object
 
-  // jajom.Singleton
-  // ---------------
-  // A special class designed to allow for the creation of
-  // singletons.
-  jajom.Singleton = jajom.Object.extend().statics({
-    getInstance: function () {
-      if (!this._instance) this.setInstance()
-      return this._instance
-    },
-    setInstance: function () {
-      this._instance = this.create.apply(this, arguments)
-    }
-  })
-
-  // Method
-  // ------
-  // Wrap a method in a super call.
+  // Define a method, wrapping it for calls to its super if needed.
   function method(key, method) {
     var sup = this[key]
     if (sup && 'function' === typeof method
@@ -141,9 +125,7 @@
     return this
   }
 
-  // Extend
-  // ------
-  // Helper to extend an object
+  // Extend an object. Passing more then one `source` will apply them all to 'this'
   function extend(source) {
     if (arguments.length > 1) {
       for (var i = 0; i < arguments.length; i += 1) {

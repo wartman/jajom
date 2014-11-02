@@ -478,11 +478,11 @@ describe('jajom', function () {
 
     })
 
-    describe('#method', function () {
+    describe('#addMethod', function () {
 
       it('assigns a method to the prototype', function () {
         var Test = jajom.Object.extend()
-        Test.method('foo', function () {
+        Test.addMethod('foo', function () {
           return 'foo'
         })
         var test = new Test()
@@ -491,11 +491,11 @@ describe('jajom', function () {
 
       it('allows for super calls', function () {
         var Test = jajom.Object.extend()
-        Test.method('foo', function () {
+        Test.addMethod('foo', function () {
           return 'foo'
         })
         var TestTwo = Test.extend()
-        TestTwo.method('foo', function () {
+        TestTwo.addMethod('foo', function () {
           return this.sup() + 'bar'
         })
         var test = new TestTwo()
@@ -551,6 +551,30 @@ describe('jajom', function () {
           expect(methodTimes).to.equal(3)
         })
 
+      })
+
+    })
+
+    describe('#addStaticMethod', function () {
+
+      it('adds methods to the class', function () {
+        var Test = jajom.Object.extend()
+        Test.addStaticMethod('foo', function () {
+          return 'foo'
+        })
+        expect(Test.foo()).to.equal('foo')
+      })
+
+      it('allows for super calls', function () {
+        var Test = jajom.Object.extend()
+        Test.addStaticMethod('foo', function () {
+          return 'foo'
+        })
+        var TestTwo = Test.extend()
+        TestTwo.addStaticMethod('foo', function () {
+          return this.sup() + 'bar'
+        })
+        expect(TestTwo.foo()).to.equal('foobar')
       })
 
     })
@@ -658,37 +682,6 @@ describe('jajom', function () {
         expect(Test.toString()).to.equal(testConstructor.toString())
         expect(TestTwo.toString()).to.equal(testConstructor.toString())
         expect(TestThree.toString()).to.equal(extendedConstructor.toString())
-      })
-
-    })
-
-  })
-
-  describe('Singleton', function () {
-
-    describe('#getInstance', function () {
-
-      it('returns a single instance', function () {
-        var Test = jajom.Singleton.extend(function () {
-          this.foo = 'foo'
-        })
-        expect(Test.getInstance().foo).to.equal('foo')
-        Test.getInstance().foo = 'bar'
-        expect(Test.getInstance().foo).to.equal('bar')
-      })
-
-    })
-
-    describe('#setInstance', function () {
-
-      it('can be used to initialize a singleton', function () {
-        var Test = jajom.Singleton.extend(function (foo) {
-          this.foo = foo
-        })
-        Test.setInstance('bar')
-        expect(Test.getInstance().foo).to.equal('bar')
-        Test.setInstance('bin')
-        expect(Test.getInstance().foo).to.equal('bin')
       })
 
     })
