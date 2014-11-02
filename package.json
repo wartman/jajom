@@ -1,6 +1,6 @@
 {
   "name": "jajom",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Just Another JavaScript OOP Module",
   "main": "index.js",
   "directories": {
