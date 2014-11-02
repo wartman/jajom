@@ -12,7 +12,7 @@
     if ('object' === typeof obj) return jajom.Object.extend(obj)
     return jajom.Object.extend(obj)
       .methods(obj.prototype, jajom.Object.prototype)
-      .statics(obj, jajom.Object)
+      .staticMethods(obj, jajom.Object)
   }
 
   // jajom.Object
@@ -69,7 +69,7 @@
 
   // Add helper functions for mixins on the class or
   // on the class prototype.
-  jajom.Object.statics = extend
+  jajom.Object.staticMethods = extend
   jajom.Object.addStaticMethod = method
   jajom.Object.prototype.implement = extend
   jajom.Object.prototype.addMethod = method

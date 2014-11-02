@@ -40,8 +40,8 @@ var Foo = jajom.Object.extend(function (foo) {
   getFoo: function () {
     return this.foo;
   }
-}).statics({
-  // Guess what `statics` does.
+}).staticMethods({
+  // Add class methods
   fooitize: function (str) {
     str = str + 'foo';
     return this.create(str);

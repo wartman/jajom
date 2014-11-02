@@ -295,7 +295,7 @@ describe('jajom', function () {
       it('can access constructor within constructor', function () {
         var Base = jajom.Object.extend(function () {
           expect(this.constructor.foo).to.equal('foo')
-        }).statics({
+        }).staticMethods({
           foo: 'foo'
         })
         new Base()
@@ -504,17 +504,17 @@ describe('jajom', function () {
 
     })
 
-    describe('#statics', function () {
+    describe('#staticMethods', function () {
 
       it('sets static methods', function () {
-        Base.statics({
+        Base.staticMethods({
           foo: 'bar'
         })
         expect(Base.foo).to.equal('bar')
       })
 
       it('can access statics within statics', function () {
-        var Base = jajom.Object.extend().statics({
+        var Base = jajom.Object.extend().staticMethods({
           foo: function () {
             expect(this.bar).to.equal('bar')
           },
@@ -527,20 +527,20 @@ describe('jajom', function () {
 
         it('calls the parent method', function () {
           methodTimes = 0
-          Base.statics({
+          Base.staticMethods({
             foo: function () {
               ++methodTimes
               expect(methodTimes).to.equal(1)
             }
           })
-          var Sub = Base.extend().statics({
+          var Sub = Base.extend().staticMethods({
             foo: function () {
               this.sup()
               ++methodTimes
               expect(methodTimes).to.equal(2)
             }
           })
-          var SubTwo = Sub.extend().statics({
+          var SubTwo = Sub.extend().staticMethods({
             foo: function () {
               this.sup()
               ++methodTimes
