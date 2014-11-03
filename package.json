@@ -1,10 +1,14 @@
 {
   "name": "jajom",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Just Another JavaScript OOP Module",
   "main": "index.js",
   "directories": {
     "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wartman/jajom.git"
   },
   "scripts": {
     "test": "test"
