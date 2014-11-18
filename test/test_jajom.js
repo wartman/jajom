@@ -5,8 +5,10 @@ describe('jajom', function () {
 
   var Base
   beforeEach(function () {
-    Base = jajom.Object.extend(function (n) {
-      this.n = n
+    Base = jajom.Object.extend({
+      constructor: function (n) {
+        this.n = n
+      }
     })
   })
 
@@ -65,9 +67,11 @@ describe('jajom', function () {
       return this.foo + 'bar'
     }
     var TestTwo = jajom(Test)
-    var TestThree = TestTwo.extend(function (n) {
-      n += 'foo'
-      this.sup(n)
+    var TestThree = TestTwo.extend({
+      constructor: function (n) {
+        n += 'foo'
+        this.sup(n)
+      }
     })
     var test = new TestThree('foo')
     expect(test.foo).to.equal('foofoo')
@@ -136,9 +140,12 @@ describe('jajom', function () {
 
     describe('#extend', function () {
 
-      it('defines the constructor when a function is passed', function () {
+      it('defines methods if a function is passed', function () {
         var Base = jajom.Object.extend(function () {
-          this.foo = 'foo'
+          var _privateFoo = 'foo'
+          this.constructor = function () {
+            this.foo = _privateFoo
+          }
         })
         var test = new Base()
         expect(test.foo).to.equal('foo')
@@ -175,28 +182,37 @@ describe('jajom', function () {
         expect(Test.get()).to.equal('bar')
       })
 
+      it('defines statics if a function is passed as a second argument', function () {
+        var Test = jajom.Object.extend({
+          // Nada
+        }, function () {
+          this.get = function () {
+            return this.foo
+          },
+          this.set = function (foo) {
+            this.foo = foo
+            return this
+          }
+        })
+        Test.set('bar')
+        expect(Test.get()).to.equal('bar')
+      })
+
       it('does not call constructor twice', function (done) {
         var called = 0
         var timer = setTimeout(function () {
           expect(called).to.equal(1)
           done()
         }, 200)
-        var Base = jajom.Object.extend(function () {
-          called += 1
+        var Base = jajom.Object.extend({
+          constructor: function () {
+            called += 1
+          }
         })
         new Base()
       })
 
       it('does not call first class\' constructor when extending', function () {
-        var called = 0
-        var Base = jajom.Object.extend(function () {
-          called += 1
-        })
-        var Sub = Base.extend()
-        expect(called).to.equal(0)
-      })
-
-      it('does not call first class\' constructor when extending (object-literal syntax)', function () {
         var called = 0
         var Base = jajom.Object.extend({
           constructor: function () {
@@ -209,14 +225,20 @@ describe('jajom', function () {
 
       it('doesn\'t bubble constructor to sub-classes', function () {
         var called = 0
-        var Foo = jajom.Object.extend(function() {
-          called += 1
+        var Foo = jajom.Object.extend({
+          constructor: function() {
+            called += 1
+          }
         })
-        var Bar = Foo.extend(function() {
-          called += 1
+        var Bar = Foo.extend({
+          constructor: function() {
+            called += 1
+          }
         })
-        var Baz = Bar.extend(function() {
-          called += 1
+        var Baz = Bar.extend({
+          constructor: function() {
+            called += 1
+          }
         })
         //should only fire Baz's constructor
         var baz = new Baz()
@@ -229,8 +251,10 @@ describe('jajom', function () {
           expect(called).to.equal(1)
           done()
         }, 200)
-        var Base = jajom.Object.extend(function () {
-          called += 1
+        var Base = jajom.Object.extend({
+          constructor: function () {
+            called += 1
+          }
         })
         var Sub = Base.extend()
         new Sub()
@@ -242,8 +266,10 @@ describe('jajom', function () {
           expect(called).to.equal(1)
           done()
         }, 200)
-        var Base = jajom.Object.extend(function () {
-          called += 1
+        var Base = jajom.Object.extend({
+          constructor: function () {
+            called += 1
+          }
         })
         var Sub = Base.extend({
           foo: function(){}
@@ -293,9 +319,11 @@ describe('jajom', function () {
       })
 
       it('can access constructor within constructor', function () {
-        var Base = jajom.Object.extend(function () {
-          expect(this.constructor.foo).to.equal('foo')
-        }).staticMethods({
+        var Base = jajom.Object.extend({
+          constructor: function () {
+            expect(this.constructor.foo).to.equal('foo')
+          }
+        }, {
           foo: 'foo'
         })
         new Base()
@@ -308,12 +336,12 @@ describe('jajom', function () {
       })
 
       it('should inherit super methods', function () {
-        var Base = jajom.Object.extend(function () {}).methods({
+        var Base = jajom.Object.extend({
           foo: function () {
             return 'foo'
           }
         })
-        var Sub = Base.extend(function () {})
+        var Sub = Base.extend()
         var test = new Sub()
         expect(test.foo).to.be.a('function')
         expect(test.foo()).to.equal('foo')
@@ -330,9 +358,11 @@ describe('jajom', function () {
               expect(methodTimes).to.equal(1)
             }
           })
-          var Sub = Base.extend(function () {
-            constructTimes += 1
-            expect(constructTimes).to.equal(1)
+          var Sub = Base.extend({
+            constructor: function () {
+              constructTimes += 1
+              expect(constructTimes).to.equal(1)
+            }
           }).methods({
             foo: function () {
               this.sup()
@@ -340,10 +370,12 @@ describe('jajom', function () {
               expect(methodTimes).to.equal(2)
             }
           })
-          var SubTwo = Sub.extend(function () {
-            this.sup()
-            constructTimes += 1
-            expect(constructTimes).to.equal(2)
+          var SubTwo = Sub.extend({
+            constructor: function () {
+              this.sup()
+              constructTimes += 1
+              expect(constructTimes).to.equal(2)
+            }
           }).methods({
             foo: function () {
               this.sup()
@@ -593,10 +625,12 @@ describe('jajom', function () {
 
       it('should be inherited', function () {
         var count = 0
-        var Sub = Base.extend(function (n) {
-          this.sup(n)
-          count += 1
-          this.n += 1
+        var Sub = Base.extend({
+          constructor: function (n) {
+            this.sup(n)
+            count += 1
+            this.n += 1
+          }
         })
         var test = Sub.create.apply(Sub, [5])
         expect(test.n).to.equal(6)
@@ -642,15 +676,18 @@ describe('jajom', function () {
       })
 
       it('does not exceed max-call-stack when calling toString on constructor', function () {
-        var Test = jajom.Object.extend(function (n) {
-          this.foo = n
-        }).methods({
+        var Test = jajom.Object.extend({
+          constructor: function (n) {
+            this.foo = n
+          },
           bar: function () {
             return this.foo + 'bar'
           }
         })
-        var TestTwo = Test.extend(function (n) {
-          this.sup(n)
+        var TestTwo = Test.extend({
+          constructor: function (n) {
+            this.sup(n)
+          }
         })
         var TestThree = TestTwo.extend({
           constructor: function (n) {
@@ -678,7 +715,9 @@ describe('jajom', function () {
           constructor: testConstructor
         })
         var TestTwo = Test.extend()
-        var TestThree = TestTwo.extend(extendedConstructor)
+        var TestThree = TestTwo.extend({
+          constructor: extendedConstructor
+        })
         expect(Test.toString()).to.equal(testConstructor.toString())
         expect(TestTwo.toString()).to.equal(testConstructor.toString())
         expect(TestThree.toString()).to.equal(extendedConstructor.toString())

@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "description": "Just Another JavaScript OOP Module",
   "main": "index.js",
+  "private": true,
   "directories": {
     "test": "test"
   },

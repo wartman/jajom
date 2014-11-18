@@ -10,7 +10,7 @@
   // be transformed into a `jajom.Object`.
   function jajom(obj) {
     if ('object' === typeof obj) return jajom.Object.extend(obj)
-    return jajom.Object.extend(obj)
+    return jajom.Object.extend({constructor: obj})
       .methods(obj.prototype, jajom.Object.prototype)
       .staticMethods(obj, jajom.Object)
   }
@@ -24,9 +24,18 @@
 
   // Extend the base object and create a new class.
   jajom.Object.extend = function (props, staticProps) {
-    props = ('function' === typeof props)
-      ? {constructor: props} 
-      : (props || {})
+    var proxy
+    if ('function' === typeof props) {
+      proxy = props
+      proxy.call(props = {})
+    }
+    if ('function' === typeof staticProps) {
+      proxy = staticProps
+      proxy.call(staticProps = {})
+    }
+    props || (props = {})
+    staticProps || (staticProps = {})
+
 
     // Create the prototype chain
     var parent = this
@@ -37,21 +46,21 @@
 
     // Create the constructor
     var constructor = proto.constructor
-    function Class() { // Named function for prettier console logging
+    function Object() { // Named function for prettier console logging
       if (!jajom.__prototyping) return constructor.apply(this, arguments)
     }
-    proto.constructor = Class;
+    proto.constructor = Object;
 
     // Mixin parent statics and any passed ones.
-    extend.call(Class, parent, (staticProps || {}))
+    extend.call(Object, parent, staticProps)
     // Set valueOf manually.
-    Class.valueOf = function (type) {
-      return (type == 'object')? Class : constructor.valueOf()
+    Object.valueOf = function (type) {
+      return (type == 'object')? Object : constructor.valueOf()
     }
     // Set the prototype.
-    Class.prototype = proto
+    Object.prototype = proto
 
-    return Class
+    return Object
   }
 
   // Add methods to the prototype.
