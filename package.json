@@ -1,6 +1,6 @@
 {
   "name": "jajom",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Just Another JavaScript OOP Module",
   "main": "index.js",
   "private": true,
@@ -17,7 +17,7 @@
   "author": "Peter Wartman",
   "license": "MIT",
   "devDependencies": {
-    "chai": "^1.9.2",
+    "expect.js": "^0.3.1",
     "gulp": "^3.8.9",
     "gulp-mocha": "^1.1.1",
     "gulp-rename": "^1.2.0",
