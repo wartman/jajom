@@ -57,10 +57,6 @@
     for (var key in source) {
       if (source.hasOwnProperty(key)) {
         if (key === 'constructor') continue
-        if ('function' !== typeof source[key]) {
-          throw new Error('Class.extend() Error: Only functions should be '
-            + 'present in class prototypes (this is to mimic es6 classes)')
-        }
         method(dest, key, source[key])
       }
     }

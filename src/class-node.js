@@ -28,10 +28,10 @@
     SubClass.prototype = Object.create(parent.prototype)
     for (var key in source) {
       if (source.hasOwnProperty(key)) {
-        if ('function' !== typeof source[key]) {
-          throw new Error('Class.extend() Error: Only functions should be '
-            + 'present in class prototypes (this is to mimic es6 classes)')
-        }
+        // if ('function' !== typeof source[key]) {
+        //   throw new Error('Class.extend() Error: Only functions should be '
+        //     + 'present in class prototypes (this is to mimic es6 classes)')
+        // }
         SubClass.prototype[key] = source[key]
         SubClass.prototype[key].__methodName = key
       }
