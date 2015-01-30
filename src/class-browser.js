@@ -67,7 +67,7 @@
   var Class = function () {}
 
   // Extend and create a new class from the current one.
-  Class.extend = function extend(source) {
+  var extend = Class.extend = function (source) {
     source = source || {}
     // Alias the constructor
     if (source.hasOwnProperty('constructor')) {
@@ -78,7 +78,7 @@
     var parent = this
     var SubClass = function Class() { // Named for prettier console logging
       this._super = function () {} // Default super method
-      if (Class.prototype.__constructor) Class.prototype.__constructor.apply(this, arguments)
+      if (SubClass.prototype.__constructor) SubClass.prototype.__constructor.apply(this, arguments)
     }
     SubClass.prototype = create(parent.prototype)
     mixin(SubClass.prototype, source)
