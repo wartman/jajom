@@ -31,7 +31,7 @@
   // however all browsers (and node.js) currently support it. This is the
   // reason we do not run this script in strict mode.
   var superMethod = function superMethod() {
-    var impl = superMethod.caller
+    var impl = this._super.caller
     var name = impl.__methodName
     var foundImpl = this[name] === impl
     var args = Array.prototype.slice.call(arguments)
@@ -84,7 +84,7 @@
     SubClass.prototype['super'] = 
       SubClass.prototype._super = superMethod
     SubClass.prototype.constructor = SubClass
-    SubClass.extend = extend
+    SubClass.extend = Jajom.extend
     return SubClass
   }
 
