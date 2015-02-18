@@ -10,7 +10,7 @@ gulp.task('test', function () {
 
 gulp.task('minify', ['test'], function () {
   // Minify only the browser-module
-  return gulp.src('./src/class-browser.js')
+  return gulp.src('./jajom.js')
     .pipe(uglify())
     .pipe(rename('jajom.min.js'))
     .pipe(gulp.dest('./dist'))

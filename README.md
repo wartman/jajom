@@ -1,23 +1,22 @@
 JAJOM
 =====
 
-Just Another JavaScript OOP Module
+"Just Another JavaScript OOP Module".
 
-Designed to work as a stopgap for actual ES6 classes
+Jajom is designed as a stop-gap for real ES6 classes. It provides the
+bare-minimum functionality needed and nothing else.
 
 ```javascript
-// Two versions available: The nicer, ES5+ version (used by default),
-// and an uglier but more compatible version designed for older browsers.
-var Jajom = require('jajom/browser') // The compatible version
-var Jajom = require('jajom')  // The default version
 
-// Creating classes is easy:
-var Foo = Jajom.Class.extend({
-  
+var Class = require('jajom')
+
+// Creating classes is easy, and should be familiar to anyone
+// who's used Backbone.
+var Foo = Class.extend({
+
   constructor: function () {
-    // As with es6 classes, you CANNOT define properties in a 
-    // class' prototype. Only functions are allowed. Instead,
-    // define instance properties in the constructor.
+    // `constructor` defines, as you probably have guessed,
+    // the object's constructor.
     this.foo = 'foo'
   },
 
@@ -29,9 +28,9 @@ var Foo = Jajom.Class.extend({
 
 // Inheritance is also straight-forward:
 var SubFoo = Foo.extend({
-  
+
   constructor: function () {
-    // Call the parent method with '_super'
+    // Override a method with '_super'
     this._super()
     this.bar = 'bar'
   },
@@ -46,11 +45,15 @@ var SubFoo = Foo.extend({
 
 })
 
-// Finally, you can cast objects into Jajom classes
-// with `Jajom.create`.
-var Backbone = require('backbone')
-
-var JajomedView = Jajom.create(Backbone.View) // You can now use '_super' methods in Backbone Views!
-
-// That's all!
 ```
+
+That's it!
+
+Acknowledgments
+---------------
+The code here is based on [this Salsify blog post](http://blog.salsify.com/engineering/super-methods-in-javascript).
+The main difference is a bit of work I've done to make Jajom
+compatible with older browsers (ie8). You can read up on some of
+the drawbacks of this method over on the blog (specifically the
+use of `Function#caller`), but I think this is a better interim solution
+then the alternative of wrapping every method to re-assign `Class#_super`.

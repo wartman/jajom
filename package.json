@@ -2,7 +2,7 @@
   "name": "jajom",
   "version": "0.1.2",
   "description": "Just Another JavaScript OOP Module",
-  "main": "index.js",
+  "main": "jajom.js",
   "private": true,
   "directories": {
     "test": "test"
