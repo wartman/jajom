@@ -10,9 +10,9 @@
   var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors
   var defineProperties = Object.defineProperties
 
-  var jajomMethods = ['extend', 'compose']
+  var jajomMethods = ['extend', 'compose', 'include']
 
-  var Jajom = function Object() {
+  var Jajom = function JajomObject() {
     // noop
   }
 
@@ -23,7 +23,7 @@
 
     var parent = this
     var constructor = source.hasOwnProperty('constructor') ? source.constructor : parent
-    var ctor = function Object() {
+    var ctor = function JajomObject() {
       constructor.apply(this, Array.prototype.slice.call(arguments, 0))
     }
     
@@ -74,6 +74,23 @@
     ctors.push(parent)
 
     return dst
+  }
+
+  // Mix objects into the current object's prototype.
+  //
+  // Note that this method IS mutating, unlike `extends` and `compose`.
+  Jajom.include = function include() {
+    var objs = Array.prototype.slice.call(arguments, 0)
+    var dst = this
+
+    objs.forEach(function (obj) {
+      if (obj.hasOwnProperty('constructor')) {
+        throw new Error('You cannot include constructors! You must define them using `extend` or in a composed object')
+      }
+      defineProperties(dst.prototype, getOwnPropertyDescriptors(obj))
+    })
+
+    return this
   }
 
   return Jajom

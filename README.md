@@ -31,13 +31,13 @@ const Barable = Jajom.extend({
 
 })
 
-const FooBar = Jajom.extend({
+const FooBar = Jajom.compose(Fooable, Barable).include({
 
   getFooBar() {
     return this.getBar() + " " + this.getFoo()
   }
 
-}).compose(Fooable, Barable)
+})
 
 const test = new FooBar()
 console.log(test.getFooBar()) // => 'bar foo'
