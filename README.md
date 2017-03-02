@@ -3,57 +3,43 @@ JAJOM
 
 "Just Another JavaScript OOP Module".
 
-Jajom is designed as a stop-gap for real ES6 classes. It provides the
-bare-minimum functionality needed and nothing else.
+Inehritance with a little composition.
 
 ```javascript
 
-var Class = require('jajom')
+const Fooable = Jajom.extend({
 
-// Creating classes is easy, and should be familiar to anyone
-// who's used Backbone.
-var Foo = Class.extend({
-
-  constructor: function () {
-    // `constructor` defines, as you probably have guessed,
-    // the object's constructor.
+  constructor() {
     this.foo = 'foo'
   },
 
-  getFoo: function () {
+  getFoo() {
     return this.foo
-  }
+  } 
 
 })
 
-// Inheritance is also straight-forward:
-var SubFoo = Foo.extend({
+const Barable = Jajom.extend({
 
-  constructor: function () {
-    // Override a method with '_super'
-    this._super()
+  constructor() {
     this.bar = 'bar'
   },
 
-  getFoo: function () {
-    return this._super() + 'bar'
-  },
-
-  getBar: function () {
+  getBar() {
     return this.bar
   }
 
 })
 
+const FooBar = Jajom.extend({
+
+  getFooBar() {
+    return this.getBar() + " " + this.getFoo()
+  }
+
+}).compose(Fooable, Barable)
+
+const test = new FooBar()
+console.log(test.getFooBar()) // => 'bar foo'
+
 ```
-
-That's it!
-
-Acknowledgments
----------------
-The code here is based on [this Salsify blog post](http://blog.salsify.com/engineering/super-methods-in-javascript).
-The main difference is a bit of work I've done to make Jajom
-compatible with older browsers (ie8). You can read up on some of
-the drawbacks of this method over on the blog (specifically the
-use of `Function#caller`), but I think this is a better interim solution
-then the alternative of wrapping every method to re-assign `Class#_super`.
