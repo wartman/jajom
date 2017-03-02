@@ -4,6 +4,7 @@
   else context[name] = definition()
 }('Jajom', this, function () {
 
+  // todo: add shims?
   var create = Object.create
   var assign = Object.assign
   var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors
@@ -17,29 +18,19 @@
 
   // Extend an object. This will return a new object, not modify the
   // current one.
-  //
-  // The second argument is an object of options which can be used to
-  // set up the Object's meta properties. Right now, that's just `skipConstructor`,
-  // which is used during composition.
-  Jajom.extend = function extend(source, options) {
+  Jajom.extend = function extend(source) {
     source || (source = {})
-    options || (options = {})
 
     var parent = this
     var constructor = source.hasOwnProperty('constructor') ? source.constructor : parent
     var ctor = function Object() {
-      if (!this.constructor.__meta.skipConstructor) {
-        constructor.apply(this, Array.prototype.slice.call(arguments, 0))
-      }
+      constructor.apply(this, Array.prototype.slice.call(arguments, 0))
     }
     
     delete source.constructor
 
     ctor.prototype = create(parent.prototype, getOwnPropertyDescriptors(source))
     ctor.prototype.constructor = ctor
-    
-    // Setup the class's metadata
-    ctor.__meta = assign({ skipConstructor: false }, options)
 
     // Add static methods.
     jajomMethods.forEach(function (key) {
@@ -56,30 +47,31 @@
   // as each constructor will receive the same ones.
   //
   // This method creates a new object in the current object's prototype chain.
-  Jajom.compose = function () {
+  //
+  // TODO: 
+  //      - It'd be nice to have access to the constructor list somewhere.
+  //      - Do we need a list of objects each object composes somewhere? For reflection/type checks?
+  Jajom.compose = function compose() {
     var parent = this
+    var ctors = []
     var dst = this.extend({
       constructor: function () {
         var self = this
         var args = Array.prototype.slice.call(arguments, 0)
-        self.constructor.__meta.ctors.forEach(function (ctor) {
+        ctors.forEach(function (ctor) {
           ctor.apply(self, args)
         })
       }
     })
     var objs = Array.prototype.slice.call(arguments, 0)
 
-    dst.__meta.ctors = []
-
     objs.forEach(function (obj) {
-      if (false !== obj.__meta.skipConstructor) {
-        dst.__meta.ctors.push(obj)
-      }
+      ctors.push(obj)
       defineProperties(dst.prototype, getOwnPropertyDescriptors(obj.prototype))
     })
 
     // Add the current object's constructor last.
-    dst.__meta.ctors.push(parent)
+    ctors.push(parent)
 
     return dst
   }
